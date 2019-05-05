@@ -1,7 +1,9 @@
 package br.com.gmfonseca.bolsaapp;
 
+import br.com.gmfonseca.bolsaapp.controllers.AtivosController;
 import br.com.gmfonseca.bolsaapp.controllers.BolsasController;
 import br.com.gmfonseca.bolsaapp.controllers.BrokersController;
+import br.com.gmfonseca.bolsaapp.routers.AtivosRouter;
 import br.com.gmfonseca.bolsaapp.routers.BolsasRouter;
 import br.com.gmfonseca.bolsaapp.routers.BrokersRouter;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -41,4 +43,17 @@ public class AppConfig {
     public BolsasRouter bolsasRouter(){
         return new BolsasRouter(bolsasController());
     }
+
+    @Bean
+    AtivosController ativosController(){
+        return new AtivosController(this.getEntityManager());
+    }
+
+    @Bean
+    public AtivosRouter ativosRouter(){
+        return new AtivosRouter(ativosController());
+    }
+
+
+
 }

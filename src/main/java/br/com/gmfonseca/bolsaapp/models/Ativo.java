@@ -3,13 +3,13 @@ package br.com.gmfonseca.bolsaapp.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "bolsa")
-public class Bolsa {
+@Table(name = "ativo")
+public class Ativo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    protected int id;
+    private int id;
 
-    public Bolsa() {}
+    public Ativo() {}
 
 }

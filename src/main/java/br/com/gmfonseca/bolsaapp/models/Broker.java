@@ -10,4 +10,6 @@ public class Broker {
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected int id;
 
+    public Broker() {}
+
 }
