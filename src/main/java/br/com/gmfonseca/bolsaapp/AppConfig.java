@@ -2,10 +2,12 @@ package br.com.gmfonseca.bolsaapp;
 
 import br.com.gmfonseca.bolsaapp.controllers.AtivosController;
 import br.com.gmfonseca.bolsaapp.controllers.BolsasController;
-import br.com.gmfonseca.bolsaapp.controllers.BrokersController;
+import br.com.gmfonseca.bolsaapp.controllers.CorretorasController;
+import br.com.gmfonseca.bolsaapp.controllers.OrdensController;
 import br.com.gmfonseca.bolsaapp.routers.AtivosRouter;
 import br.com.gmfonseca.bolsaapp.routers.BolsasRouter;
-import br.com.gmfonseca.bolsaapp.routers.BrokersRouter;
+import br.com.gmfonseca.bolsaapp.routers.CorretorasRouter;
+import br.com.gmfonseca.bolsaapp.routers.OrdensRouter;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,13 +27,13 @@ public class AppConfig {
     }
 
     @Bean
-    BrokersController brokersController(){
-        return new BrokersController(this.getEntityManager());
+    CorretorasController brokersController(){
+        return new CorretorasController(this.getEntityManager());
     }
 
     @Bean
-    public BrokersRouter brokersRouter(){
-        return new BrokersRouter(brokersController());
+    public CorretorasRouter brokersRouter(){
+        return new CorretorasRouter(brokersController());
     }
 
     @Bean
@@ -52,6 +54,16 @@ public class AppConfig {
     @Bean
     public AtivosRouter ativosRouter(){
         return new AtivosRouter(ativosController());
+    }
+
+    @Bean
+    OrdensController ordensController(){
+        return new OrdensController(this.getEntityManager());
+    }
+
+    @Bean
+    public OrdensRouter ordensRouter(){
+        return new OrdensRouter(ordensController());
     }
 
 

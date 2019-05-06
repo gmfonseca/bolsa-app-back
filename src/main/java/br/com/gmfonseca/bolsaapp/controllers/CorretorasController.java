@@ -2,11 +2,11 @@ package br.com.gmfonseca.bolsaapp.controllers;
 
 import javax.persistence.EntityManager;
 
-public class BrokersController {
+public class CorretorasController {
 
     private EntityManager entityManager;
 
-    public BrokersController(EntityManager entityManager) {
+    public CorretorasController(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

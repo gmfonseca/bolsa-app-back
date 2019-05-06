@@ -18,7 +18,7 @@ public class AtivosController {
     /**
      * Método para recuperar todos os ativos cadastrados no banco de dados
      *
-     * @return Lista de ativos cadastrados
+     * @return Lista de ativos encontrados
      */
     public List<Ativo> getAtivos(){
         return entityManager.createQuery("from Ativo", Ativo.class).getResultList();
@@ -27,7 +27,13 @@ public class AtivosController {
     /**
      * Método para recuperar um ativo especifico cadastrado no banco de dados
      *
-     * @return Ativo cadastrado
+     * @param codigo Codigo do ativo que se deseja buscar
+     *
+     * @throws NotFilledRequiredFieldsException caso os campos obrigatorios nao sejam preenchidos
+     * @throws NotCorrectFieldLengthException caso o codigo do Ativo nao tenha comprimento 5
+     * @throws AssetNotFoundException caso o Ativo nao seja encontrado
+     *
+     * @return Ativo encontrado
      */
     public Ativo getAtivo(String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException {
 
@@ -36,14 +42,23 @@ public class AtivosController {
 
         Ativo ativo = entityManager.find(Ativo.class, codigo);
 
-        if(ativo == null) throw new AssetNotFoundException(codigo);
+        if(ativo == null) throw new AssetNotFoundException();
 
         return ativo;
     }
 
     /**
+     * Método para criar um ativo
      *
+     * @param nome Nome da empresa do ativo
+     * @param codigo Codigo de referencia do ativo
+     * @param descricao Descricao da empresa do ativo
      *
+     * @throws NotFilledRequiredFieldsException caso os campos obrigatorios nao sejam preenchidos
+     * @throws NotCorrectFieldLengthException caso o codigo do Ativo nao tenha comprimento 5
+     * @throws AssetAlreadyExistsException caso exista um Ativo cadastrado com o codigo informado
+     *
+     * @return Ativo criado
      */
     public Ativo createAtivo(String nome, String codigo, String descricao) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetAlreadyExistsException {
 
@@ -64,8 +79,18 @@ public class AtivosController {
     }
 
     /**
+     * Método para atualizar um ativo especifico cadastrado no banco de dados
      *
+     * @param nome Novo nome da empresa do ativo
+     * @param codigo Codigo de referencia do ativo (inalteravel)
+     * @param descricao Nova descricao da empresa do ativo
      *
+     * @throws NotFilledRequiredFieldsException caso os campos obrigatorios nao sejam preenchidos
+     * @throws NotCorrectFieldLengthException caso o codigo do Ativo nao tenha comprimento 5
+     * @throws AssetNotFoundException caso o Ativo nao seja encontrado
+     * @throws AssetNotUpdatedException caso o Ativo nao tenha sido atualizado
+     *
+     * @return Ativo atualizado
      */
     public Ativo updateAtivo(String nome, String codigo, String descricao) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, AssetNotUpdatedException {
 
@@ -86,8 +111,15 @@ public class AtivosController {
     }
 
     /**
+     * Método para deletar um ativo especifico do banco de dados
      *
+     * @param codigo Codigo do ativo que se deseja deletar
      *
+     * @throws NotFilledRequiredFieldsException caso os campos obrigatorios nao sejam preenchidos
+     * @throws NotCorrectFieldLengthException caso o codigo do Ativo nao tenha comprimento 5
+     * @throws AssetNotFoundException caso o Ativo nao seja encontrado
+     *
+     * @return Ativo deletado
      */
     public Ativo deleteAtivo(String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException {
         Ativo ativo = getAtivo(codigo);
@@ -98,7 +130,5 @@ public class AtivosController {
 
         return ativo;
     }
-
-
 
 }
