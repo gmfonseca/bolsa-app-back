@@ -2,9 +2,13 @@ package br.com.gmfonseca.bolsaapp.controllers;
 
 import br.com.gmfonseca.bolsaapp.exceptions.*;
 import br.com.gmfonseca.bolsaapp.models.Ativo;
+import br.com.gmfonseca.bolsaapp.models.Corretora;
+import br.com.gmfonseca.bolsaapp.models.Ordem;
 import br.com.gmfonseca.bolsaapp.util.Util;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AtivosController {
@@ -38,7 +42,7 @@ public class AtivosController {
     public Ativo getAtivo(String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException {
 
         if(Util.fieldIsEmpty(codigo)) throw new NotFilledRequiredFieldsException();
-        if(codigo.length() != 5) throw new NotCorrectFieldLengthException("codigo", 5);
+        if(codigo.length() != 5) throw new NotCorrectFieldLengthException("Ativo:codigo/id", 5);
 
         Ativo ativo = entityManager.find(Ativo.class, codigo);
 
@@ -124,11 +128,31 @@ public class AtivosController {
     public Ativo deleteAtivo(String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException {
         Ativo ativo = getAtivo(codigo);
 
+        if(ordersUsesAsset(ativo)) {
+            List<Ordem> ordens = entityManager.createQuery("from Ordem o where o.ativo = :ativo").setParameter("ativo", ativo).getResultList();
+
+            entityManager.getTransaction().begin();
+            for (int i = ordens.size() - 1; i >= 0; i--) {
+                entityManager.remove(ordens.get(i));
+            }
+            entityManager.getTransaction().commit();
+        }
+
         entityManager.getTransaction().begin();
         entityManager.remove(ativo);
         entityManager.getTransaction().commit();
 
         return ativo;
+    }
+    private boolean ordersUsesAsset(Ativo ativo){
+        try{
+            List<Ordem>  ordem = entityManager.createQuery("from Ordem o where o.ativo = :ativo", Ordem.class)
+                    .setParameter("ativo", ativo).getResultList();
+
+            return ordem  != null;
+        }catch (NoResultException e){
+            return false;
+        }
     }
 
 }
