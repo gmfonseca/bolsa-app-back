@@ -2,7 +2,6 @@ package br.com.gmfonseca.bolsaapp.routers;
 
 import br.com.gmfonseca.bolsaapp.controllers.TransacoesController;
 import br.com.gmfonseca.bolsaapp.exceptions.*;
-import br.com.gmfonseca.bolsaapp.models.Ordem;
 import br.com.gmfonseca.bolsaapp.models.Transacao;
 import org.springframework.web.bind.annotation.*;
 

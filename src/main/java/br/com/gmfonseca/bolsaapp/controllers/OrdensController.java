@@ -29,6 +29,32 @@ public class OrdensController {
     }
 
     /**
+     * Método para recuperar todas as ordens cadastradas no banco de dados
+     * com um tipo específico de operação
+     *
+     * @param type Tipo de operacao da ordem
+     *
+     * @return Lista de ordens encontradas
+     */
+    public List<Ordem> getOrdens(OrdemType type) throws OrderNotFoundException{
+
+        if(!hasOrder(type)) throw new OrderNotFoundException();
+
+        return entityManager.createQuery("from Ordem o where o.operacao = :ordemType", Ordem.class)
+        .setParameter("ordemType", type).getResultList();
+    }
+    private boolean hasOrder(OrdemType type){
+        try{
+            List<Ordem> ordens = entityManager.createQuery("from Ordem o where o.operacao = :ordemType", Ordem.class)
+                    .setParameter("ordemType", type).getResultList();
+
+            return ordens != null;
+        }catch (NoResultException e){
+            return false;
+        }
+    }
+
+    /**
      * Método para recuperar uma ordem especifica cadastrada no banco de dados
      *
      * @param ordemId id da ordem que se deseja buscar
