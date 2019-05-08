@@ -4,10 +4,7 @@ import br.com.gmfonseca.bolsaapp.controllers.OrdensController;
 import br.com.gmfonseca.bolsaapp.exceptions.*;
 import br.com.gmfonseca.bolsaapp.models.Ordem;
 import br.com.gmfonseca.bolsaapp.util.OrdemType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
@@ -25,6 +22,7 @@ public class OrdensRouter {
      *
      *
      */
+    @CrossOrigin
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
     public List<Ordem> getOrdens(){
@@ -35,6 +33,7 @@ public class OrdensRouter {
      *
      *
      */
+    @CrossOrigin
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
     public Ordem getOrdem(@PathVariable("id") int ordemId) throws OrderNotFoundException {
@@ -45,6 +44,7 @@ public class OrdensRouter {
      *
      *
      */
+    @CrossOrigin
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ResponseBody
     public Ordem createOrdem(OrdemType operacao, int quantidade, double valor, String ativoId, int corretoraId)
@@ -56,6 +56,7 @@ public class OrdensRouter {
      *
      *
      */
+    @CrossOrigin
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
     public Ordem deleteOrdem(@PathVariable("id") int orderId)

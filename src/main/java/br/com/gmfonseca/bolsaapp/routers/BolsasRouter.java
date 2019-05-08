@@ -2,6 +2,7 @@ package br.com.gmfonseca.bolsaapp.routers;
 
 import br.com.gmfonseca.bolsaapp.controllers.BolsasController;
 import br.com.gmfonseca.bolsaapp.models.Bolsa;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,6 +19,7 @@ public class BolsasRouter {
         this.bolsasController = bolsasController;
     }
 
+    @CrossOrigin
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
     public Set<Bolsa> getBolsas() {
