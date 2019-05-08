@@ -44,7 +44,7 @@ public class CorretorasRouter {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
-    public Corretora deleteCorretora(@PathVariable("id") int corretoraId) throws BrokerNotFoundException {
+    public Corretora deleteCorretora(@PathVariable("id") int corretoraId) throws BrokerNotFoundException, OrderNotFoundException, TransactionNotFoundException {
         return corretorasController.deleteCorretora(corretoraId);
     }
 

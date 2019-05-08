@@ -12,8 +12,6 @@ public class Ativo {
     private String codigo;
 
     private String nome;
-
-
     private String descricao;
 
     public Ativo() {}

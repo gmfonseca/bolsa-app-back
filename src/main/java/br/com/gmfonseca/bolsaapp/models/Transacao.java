@@ -1,13 +1,11 @@
 package br.com.gmfonseca.bolsaapp.models;
 
-import br.com.gmfonseca.bolsaapp.util.OrdemType;
-
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "ordem")
-public class Ordem {
+@Table(name = "transacao")
+public class Transacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -16,30 +14,30 @@ public class Ordem {
     private int quantidade;
     private double valor;
     private Date data;
-    private boolean used;
-
-    @Enumerated(EnumType.ORDINAL)
-    private OrdemType operacao;
 
     @ManyToOne
     @JoinColumn(name = "ativo_id")
     private Ativo ativo;
 
     @ManyToOne
-    @JoinColumn(name="corretora_id")
-    private Corretora corretora;
+    @JoinColumn(name = "venda_id")
+    private Ordem venda;
 
-    public Ordem(OrdemType operacao, int quantidade, double valor, Ativo ativo, Corretora corretora) {
-        this.operacao = operacao;
+    @ManyToOne
+    @JoinColumn(name = "compra_id")
+    private Ordem compra;
+
+    public Transacao(Ativo ativo, int quantidade, double valor, Ordem venda, Ordem compra) {
         this.quantidade = quantidade;
         this.valor = valor;
         this.ativo = ativo;
-        this.corretora = corretora;
-        this.used = false;
+        this.venda = venda;
+        this.compra = compra;
+
         this.data = new Date();
     }
 
-    public Ordem(){}
+    public Transacao(){}
 
     public int getId() {
         return id;
@@ -69,14 +67,6 @@ public class Ordem {
         this.data = data;
     }
 
-    public OrdemType getOperacao() {
-        return operacao;
-    }
-
-    public void setOperacao(OrdemType operacao) {
-        this.operacao = operacao;
-    }
-
     public Ativo getAtivo() {
         return ativo;
     }
@@ -85,19 +75,19 @@ public class Ordem {
         this.ativo = ativo;
     }
 
-    public Corretora getCorretora() {
-        return corretora;
+    public Ordem getVenda() {
+        return venda;
     }
 
-    public void setCorretora(Corretora corretora) {
-        this.corretora = corretora;
+    public void setVenda(Ordem venda) {
+        this.venda = venda;
     }
 
-    public boolean isUsed() {
-        return used;
+    public Ordem getCompra() {
+        return compra;
     }
 
-    public void setUsed(boolean used) {
-        this.used = used;
+    public void setCompra(Ordem compra) {
+        this.compra = compra;
     }
 }

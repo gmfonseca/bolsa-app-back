@@ -4,9 +4,11 @@ import br.com.gmfonseca.bolsaapp.exceptions.*;
 import br.com.gmfonseca.bolsaapp.models.Ativo;
 import br.com.gmfonseca.bolsaapp.models.Corretora;
 import br.com.gmfonseca.bolsaapp.models.Ordem;
+import br.com.gmfonseca.bolsaapp.models.Transacao;
 import br.com.gmfonseca.bolsaapp.util.OrdemType;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import java.util.List;
 
 public class OrdensController {
@@ -44,13 +46,13 @@ public class OrdensController {
     }
 
     /**
-     * Método para criar um ativo
+     * Método para criar uma Ordem
      *
      * @param operacao Tipo de operacao da ordem
-     * @param quantidade Quantidade de acoes do Ativo envolvido na Ordem
+     * @param quantidade Quantidade de acoes do Ativo envolvido na ordem
      * @param valor Valor da ordem de ativos
      * @param ativo Ativo envolvido na ordem
-     * @param corretora Corretora responsavel por disparar a Ordem
+     * @param corretora Corretora responsavel por disparar a ordem
      *
      * @throws AssetNotFoundException caso o ativo nao seja encontrado
      * @throws BrokerNotFoundException caso a corretora nao seja encontrada
@@ -69,36 +71,62 @@ public class OrdensController {
 
         return ordem;
     }
-    public Ordem createOrdem(int operacaoId, int quantidade, double valor, String ativoId, int corretoraId)
+    public Ordem createOrdem(OrdemType operacaoId, int quantidade, double valor, String ativoId, int corretoraId)
             throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, InvalidOrderTypeValueException, BrokerNotFoundException {
 
-        AtivosController ativosController = new AtivosController(entityManager);
+        Ativo ativo = new AtivosController(entityManager).getAtivo(ativoId);
+        Corretora corretora = new CorretorasController(entityManager).getCorretora(corretoraId);
 
-        Ativo ativo = ativosController.getAtivo(ativoId);
-        Corretora corretora = entityManager.find(Corretora.class, corretoraId);
-
-        return createOrdem(OrdemType.valueOf(operacaoId), quantidade, valor, ativo, corretora);
+        return createOrdem(operacaoId, quantidade, valor, ativo, corretora);
     }
 
     /**
      * Método para deletar uma ordem especifica do banco de dados
      *
-     * @param orderId id da ordem que sera deletada
+     * @param ordem ordem que sera deletada
      *
      * @throws OrderNotFoundException caso a ordem nao seja encontrada
      *
      * @return Ordem deletada
      */
-    public Ordem deleteOrdem(int orderId)
-            throws OrderNotFoundException {
+    public Ordem deleteOrdem(Ordem ordem)
+            throws OrderNotFoundException, TransactionNotFoundException {
+        if(ordem == null) throw new OrderNotFoundException();
 
-        Ordem ordem = getOrdem(orderId);
+        if(transationsUsesBroker(ordem)){
+            List<Transacao> transacoes = entityManager.createQuery("FROM Transacao t WHERE t.venda = :ordem OR t.compra = :ordem", Transacao.class)
+                                                      .setParameter("ordem", ordem).getResultList();
+
+            TransacoesController transacoesController = new TransacoesController(entityManager);
+
+            for (int i = transacoes.size() - 1; i >= 0; i--) {
+                transacoesController.deleteTransacao(transacoes.get(i).getId());
+            }
+        }
 
         entityManager.getTransaction().begin();
         entityManager.remove(ordem);
         entityManager.getTransaction().commit();
 
         return ordem;
+    }
+    public Ordem deleteOrdem(int orderId)
+            throws OrderNotFoundException, TransactionNotFoundException {
+
+        Ordem ordem = getOrdem(orderId);
+
+        return deleteOrdem(ordem);
+    }
+
+    private boolean transationsUsesBroker(Ordem ordem){
+        try{
+            List<Transacao> transacoes = entityManager.createQuery("from Transacao t where t.venda = :ordem OR t.compra = :ordem", Transacao.class)
+                                                      .setParameter("ordem", ordem).getResultList();
+
+            return transacoes != null;
+        }catch (NoResultException e){
+            return false;
+        }
     }
 
 }

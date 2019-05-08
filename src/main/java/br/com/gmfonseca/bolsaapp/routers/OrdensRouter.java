@@ -47,7 +47,7 @@ public class OrdensRouter {
      */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ResponseBody
-    public Ordem createOrdem(int operacao, int quantidade, double valor, String ativoId, int corretoraId)
+    public Ordem createOrdem(OrdemType operacao, int quantidade, double valor, String ativoId, int corretoraId)
             throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, InvalidOrderTypeValueException, BrokerNotFoundException {
         return ordensController.createOrdem(operacao, quantidade, valor, ativoId, corretoraId);
     }
@@ -59,7 +59,7 @@ public class OrdensRouter {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
     public Ordem deleteOrdem(@PathVariable("id") int orderId)
-            throws OrderNotFoundException {
+            throws OrderNotFoundException, TransactionNotFoundException {
         return ordensController.deleteOrdem(orderId);
     }
 

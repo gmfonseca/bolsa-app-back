@@ -4,6 +4,7 @@ import br.com.gmfonseca.bolsaapp.exceptions.*;
 import br.com.gmfonseca.bolsaapp.models.Ativo;
 import br.com.gmfonseca.bolsaapp.models.Corretora;
 import br.com.gmfonseca.bolsaapp.models.Ordem;
+import br.com.gmfonseca.bolsaapp.models.Transacao;
 import br.com.gmfonseca.bolsaapp.util.Util;
 
 import javax.persistence.EntityManager;
@@ -125,17 +126,24 @@ public class AtivosController {
      *
      * @return Ativo deletado
      */
-    public Ativo deleteAtivo(String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException {
+    public Ativo deleteAtivo(String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, OrderNotFoundException, TransactionNotFoundException {
         Ativo ativo = getAtivo(codigo);
 
-        if(ordersUsesAsset(ativo)) {
-            List<Ordem> ordens = entityManager.createQuery("from Ordem o where o.ativo = :ativo").setParameter("ativo", ativo).getResultList();
+        if(transationsUsesAsset(ativo)){
+            List<Transacao> transacoes = entityManager.createQuery("from Transacao t where t.ativo = :ativo", Transacao.class).setParameter("ativo", ativo).getResultList();
+            TransacoesController transacoesController = new TransacoesController(entityManager);
 
-            entityManager.getTransaction().begin();
-            for (int i = ordens.size() - 1; i >= 0; i--) {
-                entityManager.remove(ordens.get(i));
+            for (int i = transacoes.size() - 1; i >= 0; i--) {
+                transacoesController.deleteTransacao(transacoes.get(i).getId());
             }
-            entityManager.getTransaction().commit();
+        }
+        if(ordersUsesAsset(ativo)) {
+            List<Ordem> ordens = entityManager.createQuery("from Ordem o where o.ativo = :ativo", Ordem.class).setParameter("ativo", ativo).getResultList();
+            OrdensController ordensController = new OrdensController(entityManager);
+
+            for (int i = ordens.size() - 1; i >= 0; i--) {
+                ordensController.deleteOrdem(ordens.get(i));
+            }
         }
 
         entityManager.getTransaction().begin();
@@ -150,6 +158,16 @@ public class AtivosController {
                     .setParameter("ativo", ativo).getResultList();
 
             return ordem  != null;
+        }catch (NoResultException e){
+            return false;
+        }
+    }
+    private boolean transationsUsesAsset(Ativo ativo){
+        try{
+            List<Transacao> transacaoes = entityManager.createQuery("from Transacao t where t.ativo = :ativo", Transacao.class)
+                    .setParameter("ativo", ativo).getResultList();
+
+            return transacaoes  != null;
         }catch (NoResultException e){
             return false;
         }

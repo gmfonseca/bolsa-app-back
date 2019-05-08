@@ -1,13 +1,7 @@
 package br.com.gmfonseca.bolsaapp;
 
-import br.com.gmfonseca.bolsaapp.controllers.AtivosController;
-import br.com.gmfonseca.bolsaapp.controllers.BolsasController;
-import br.com.gmfonseca.bolsaapp.controllers.CorretorasController;
-import br.com.gmfonseca.bolsaapp.controllers.OrdensController;
-import br.com.gmfonseca.bolsaapp.routers.AtivosRouter;
-import br.com.gmfonseca.bolsaapp.routers.BolsasRouter;
-import br.com.gmfonseca.bolsaapp.routers.CorretorasRouter;
-import br.com.gmfonseca.bolsaapp.routers.OrdensRouter;
+import br.com.gmfonseca.bolsaapp.controllers.*;
+import br.com.gmfonseca.bolsaapp.routers.*;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,6 +58,16 @@ public class AppConfig {
     @Bean
     public OrdensRouter ordensRouter(){
         return new OrdensRouter(ordensController());
+    }
+
+    @Bean
+    TransacoesController transacoesController(){
+        return new TransacoesController(this.getEntityManager());
+    }
+
+    @Bean
+    public TransacoesRouter transacoesRouter(){
+        return new TransacoesRouter(transacoesController());
     }
 
 

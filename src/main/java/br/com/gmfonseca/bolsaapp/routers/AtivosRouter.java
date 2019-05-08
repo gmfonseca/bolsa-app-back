@@ -44,7 +44,7 @@ public class AtivosRouter {
 
     @RequestMapping(value = "/{codigo}", method = RequestMethod.DELETE)
     @ResponseBody
-    public Ativo deleteAtivo(@PathVariable("codigo") String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException {
+    public Ativo deleteAtivo(@PathVariable("codigo") String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, OrderNotFoundException, TransactionNotFoundException {
         return ativosController.deleteAtivo(codigo);
     }
 

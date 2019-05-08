@@ -116,17 +116,17 @@ public class CorretorasController {
      *
      * @return Corretora deletada
      */
-    public Corretora deleteCorretora(int corretoraId) throws BrokerNotFoundException {
+    public Corretora deleteCorretora(int corretoraId) throws BrokerNotFoundException, OrderNotFoundException, TransactionNotFoundException {
         Corretora corretora = getCorretora(corretoraId);
 
         if(ordersUsesBroker(corretora)) {
-            List<Ordem> ordens = entityManager.createQuery("FROM Ordem c WHERE c.corretora = :corretora").setParameter("corretora", corretora).getResultList();
+            List<Ordem> ordens = entityManager.createQuery("FROM Ordem c WHERE c.corretora = :corretora", Ordem.class).setParameter("corretora", corretora).getResultList();
 
-            entityManager.getTransaction().begin();
+            OrdensController ordensController = new OrdensController(entityManager);
+
             for (int i = ordens.size() - 1; i >= 0; i--) {
-                entityManager.remove(ordens.get(i));
+                ordensController.deleteOrdem(ordens.get(i));
             }
-            entityManager.getTransaction().commit();
         }
 
         entityManager.getTransaction().begin();

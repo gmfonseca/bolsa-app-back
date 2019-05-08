@@ -22,5 +22,4 @@ public enum OrdemType {
 
         return id == 0 ? VENDA : COMPRA;
     }
-
 }
