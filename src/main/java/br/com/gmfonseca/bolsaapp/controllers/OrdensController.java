@@ -134,11 +134,16 @@ public class OrdensController {
             entityManager.persist(o);
             entityManager.getTransaction().commit();
 
+            Transacao transacao;
             if(operacao == OrdemType.COMPRA) {
-                new TransacoesController(entityManager).createTransacao(ativo, quantidade, valor, o, ordem);
+                transacao = new Transacao(ativo, quantidade, valor, o, ordem);
             }else{
-                new TransacoesController(entityManager).createTransacao(ativo, quantidade, valor, ordem, o);
+                transacao = new Transacao(ativo, quantidade, valor, ordem, o);
             }
+
+                entityManager.getTransaction().begin();
+                entityManager.persist(transacao);
+                entityManager.getTransaction().commit();
         }else {
             entityManager.getTransaction().begin();
             entityManager.persist(ordem);
