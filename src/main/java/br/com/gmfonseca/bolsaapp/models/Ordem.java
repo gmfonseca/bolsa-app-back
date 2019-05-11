@@ -44,7 +44,7 @@ public class Ordem {
 
         NumberFormat nb = new DecimalFormat("00");
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR, cal.get(Calendar.HOUR));
+        cal.set(Calendar.HOUR, cal.get(Calendar.HOUR)-3);
         this.data = nb.format(cal.get(Calendar.DAY_OF_MONTH)) + "/" + nb.format((cal.get(Calendar.MONTH)+1)) + "/" + nb.format(cal.get(Calendar.YEAR)) + " - " + nb.format(cal.get(Calendar.HOUR_OF_DAY)) + ":" + nb.format(cal.get(Calendar.MINUTE));
     }
 
