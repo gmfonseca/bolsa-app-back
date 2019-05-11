@@ -1,8 +1,13 @@
 package br.com.gmfonseca.bolsaapp.models;
 
 import br.com.gmfonseca.bolsaapp.util.OrdemType;
+import org.hibernate.type.CalendarDateType;
+import sun.util.calendar.CalendarDate;
 
 import javax.persistence.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 @Entity
@@ -15,7 +20,7 @@ public class Ordem {
 
     private int quantidade;
     private double valor;
-    private Date data;
+    private String data;
     private boolean used;
 
     @Enumerated(EnumType.ORDINAL)
@@ -36,7 +41,11 @@ public class Ordem {
         this.ativo = ativo;
         this.corretora = corretora;
         this.used = false;
-        this.data = new Date();
+
+        NumberFormat nb = new DecimalFormat("00");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR, cal.get(Calendar.HOUR));
+        this.data = nb.format(cal.get(Calendar.DAY_OF_MONTH)) + "/" + nb.format((cal.get(Calendar.MONTH)+1)) + "/" + nb.format(cal.get(Calendar.YEAR)) + " - " + nb.format(cal.get(Calendar.HOUR_OF_DAY)) + ":" + nb.format(cal.get(Calendar.MINUTE));
     }
 
     public Ordem(){}
@@ -61,11 +70,11 @@ public class Ordem {
         this.valor = valor;
     }
 
-    public Date getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(Date data) {
+    public void setData(String data) {
         this.data = data;
     }
 

@@ -42,6 +42,13 @@ public class CorretorasController {
 
         return corretora;
     }
+    public Corretora getCorretora(String nome) throws BrokerNotFoundException {
+        Corretora corretora = entityManager.createQuery("FROM Corretora c WHERE c.nome = :nome", Corretora.class).setParameter("nome", nome).getSingleResult();
+
+        if(corretora == null) throw new BrokerNotFoundException();
+
+        return corretora;
+    }
 
     /**
      * Método para criar uma corretora

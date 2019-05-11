@@ -45,7 +45,7 @@ public class AtivosController {
         if(Util.fieldIsEmpty(codigo)) throw new NotFilledRequiredFieldsException();
         if(codigo.length() != 5) throw new NotCorrectFieldLengthException("Ativo:codigo/id", 5);
 
-        Ativo ativo = entityManager.find(Ativo.class, codigo);
+        Ativo ativo = entityManager.find(Ativo.class, codigo.toUpperCase());
 
         if(ativo == null) throw new AssetNotFoundException();
 
@@ -70,9 +70,9 @@ public class AtivosController {
         if(Util.fieldIsEmpty(nome) || Util.fieldIsEmpty(codigo) || Util.fieldIsEmpty(descricao)) throw new NotFilledRequiredFieldsException();
         if(codigo.length() != 5) throw new NotCorrectFieldLengthException("codigo", 5);
 
-
         Ativo ativo = entityManager.find(Ativo.class, codigo);
         if(ativo != null) throw new AssetAlreadyExistsException(codigo);
+        if(descricao.length()>100) descricao = descricao.substring(0, 97)+"...";
 
         ativo = new Ativo(nome, codigo, descricao);
 

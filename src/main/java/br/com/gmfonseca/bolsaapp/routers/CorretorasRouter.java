@@ -20,31 +20,37 @@ public class CorretorasRouter {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
-    public List<Corretora> getBrokers() {
+    public synchronized List<Corretora> getBrokers() {
         return corretorasController.getCorretoras();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public Corretora getCorretora(@PathVariable("id") int corretoraId) throws BrokerNotFoundException {
+    public synchronized Corretora getCorretora(@PathVariable("id") int corretoraId) throws BrokerNotFoundException {
         return corretorasController.getCorretora(corretoraId);
+    }
+
+    @RequestMapping(value = "/{nome}", method = RequestMethod.GET)
+    @ResponseBody
+    public synchronized Corretora getCorretora(@PathVariable("nome") String nome) throws BrokerNotFoundException {
+        return corretorasController.getCorretora(nome);
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ResponseBody
-    public Corretora createCorretora(String nome) throws BrokerAlreadyExistsException, NotFilledRequiredFieldsException {
+    public synchronized Corretora createCorretora(String nome) throws BrokerAlreadyExistsException, NotFilledRequiredFieldsException {
         return corretorasController.createCorretora(nome);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ResponseBody
-    public Corretora renameCorretora(@PathVariable("id") int corretoraId, String nome) throws BrokerNotFoundException, NotFilledRequiredFieldsException, BrokerNotUpdatedException {
+    public synchronized Corretora renameCorretora(@PathVariable("id") int corretoraId, String nome) throws BrokerNotFoundException, NotFilledRequiredFieldsException, BrokerNotUpdatedException {
         return corretorasController.renameCorretora(corretoraId, nome);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
-    public Corretora deleteCorretora(@PathVariable("id") int corretoraId) throws BrokerNotFoundException, OrderNotFoundException, TransactionNotFoundException {
+    public synchronized Corretora deleteCorretora(@PathVariable("id") int corretoraId) throws BrokerNotFoundException, OrderNotFoundException, TransactionNotFoundException {
         return corretorasController.deleteCorretora(corretoraId);
     }
 

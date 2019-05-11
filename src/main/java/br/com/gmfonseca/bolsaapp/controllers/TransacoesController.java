@@ -2,13 +2,13 @@ package br.com.gmfonseca.bolsaapp.controllers;
 
 import br.com.gmfonseca.bolsaapp.exceptions.*;
 import br.com.gmfonseca.bolsaapp.models.Ativo;
-import br.com.gmfonseca.bolsaapp.models.Corretora;
 import br.com.gmfonseca.bolsaapp.models.Ordem;
 import br.com.gmfonseca.bolsaapp.models.Transacao;
 import br.com.gmfonseca.bolsaapp.util.OrdemType;
 
 import javax.persistence.EntityManager;
-import java.util.List;
+import javax.persistence.NoResultException;
+import java.util.*;
 
 public class TransacoesController {
 
@@ -24,7 +24,35 @@ public class TransacoesController {
      * @return Lista de transacoes encontradas
      */
     public List<Transacao> getTransacoes(){
-        return entityManager.createQuery("from Transacao", Transacao.class).getResultList();
+        List<Transacao> transacoes = entityManager.createQuery("from Transacao", Transacao.class).getResultList();
+        transacoes.sort(Comparator.comparing(Transacao::getId));
+        return transacoes;
+    }
+
+    /**
+     * Método para recuperar todas as ordens cadastradas no banco de dados
+     * com um tipo específico de operação
+     *
+     * @param date Data de realização da transacao (dd:MM:yyyy-hh:mm)
+     *
+     * @return Lista de ordens encontradas
+     */
+    public List<Transacao> getTransacoes(String date) {
+        List<Transacao> transacoes = new ArrayList<>();
+
+        if(date != null) {
+            String[] dados = date.split("-");
+            String data = dados[0].replaceAll(":", "/") + " - " + dados[1];
+
+            List<Transacao> getted = getTransacoes();
+
+            if (getted != null)
+                for (Transacao t : getted) {
+                    if (t.getData().equalsIgnoreCase(data)) transacoes.add(t);
+                }
+
+        }
+        return transacoes;
     }
 
     /**
@@ -60,7 +88,7 @@ public class TransacoesController {
      *
      * @return Transacao criada
      */
-    private Transacao createTransacao(Ativo ativo, int quantidade, double valor, Ordem venda, Ordem compra)
+    protected Transacao createTransacao(Ativo ativo, int quantidade, double valor, Ordem venda, Ordem compra)
             throws AssetNotFoundException, OrderNotFoundException, WrongSellOrderTypeException, WrongBuyOrderTypeException {
         if (ativo == null) throw new AssetNotFoundException();
         if (venda == null || compra == null) throw new OrderNotFoundException();
@@ -117,7 +145,7 @@ public class TransacoesController {
 
         if(transacao == null) throw new TransactionNotFoundException();
 
-        entityManager.getTransaction().begin();
+        if(!entityManager.isOpen()) entityManager.getTransaction().begin();
         entityManager.remove(transacao);
         entityManager.getTransaction().commit();
 

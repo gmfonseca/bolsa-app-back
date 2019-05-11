@@ -9,7 +9,7 @@ import br.com.gmfonseca.bolsaapp.util.OrdemType;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import java.util.List;
+import java.util.*;
 
 public class OrdensController {
 
@@ -55,6 +55,33 @@ public class OrdensController {
     }
 
     /**
+     * Método para recuperar todas as ordens cadastradas no banco de dados
+     * com um tipo específico de operação
+     *
+     * @param date Data de realização da ordem (dd:MM:yyyy-hh:mm)
+     *
+     *
+     * @return Lista de ordens encontradas
+     */
+    public List<Ordem> getOrdens(String date) {
+        List<Ordem> ordens = new ArrayList<>();
+
+        if(date != null) {
+            String[] dados = date.split("-");
+            String data = dados[0].replaceAll(":", "/") + " - " + dados[1];
+
+            List<Ordem> getted = getOrdens();
+
+            if (getted != null && getted.size()>0)
+                for (Ordem o : getted) {
+                    if (o.getData().equalsIgnoreCase(data)) ordens.add(o);
+                }
+
+        }
+        return ordens;
+    }
+
+    /**
      * Método para recuperar uma ordem especifica cadastrada no banco de dados
      *
      * @param ordemId id da ordem que se deseja buscar
@@ -85,25 +112,61 @@ public class OrdensController {
      *
      * @return Ativo criado
      */
-    public Ordem createOrdem(OrdemType operacao, int quantidade, double valor, Ativo ativo, Corretora corretora) throws AssetNotFoundException, BrokerNotFoundException {
+    public Ordem createOrdem(OrdemType operacao, int quantidade, double valor, Ativo ativo, Corretora corretora)
+            throws BrokerNotFoundException, AssetNotFoundException, OrderNotFoundException, WrongSellOrderTypeException, WrongBuyOrderTypeException {
         if (ativo == null) throw new AssetNotFoundException();
         if (corretora == null) throw new BrokerNotFoundException();
-
         Ordem ordem = new Ordem(operacao, quantidade, valor, ativo, corretora);
+        OrdemType op = (operacao == OrdemType.COMPRA ? OrdemType.VENDA : OrdemType.COMPRA);
 
-        entityManager.getTransaction().begin();
-        entityManager.persist(ordem);
-        entityManager.getTransaction().commit();
+        List<Ordem> ordens = entityManager.createQuery("FROM Ordem o WHERE o.operacao = :operacao AND o.used = false " +
+                "AND o.ativo = :ativo AND o.quantidade = :quantidade AND o.valor = :valor", Ordem.class)
+                .setParameter("operacao", op).setParameter("ativo", ativo).setParameter("quantidade", quantidade).setParameter("valor", valor).getResultList();
+
+        if(ordens.size()>0){
+            ordens.sort(Comparator.comparing(Ordem::getId));
+            Ordem o = ordens.get(0);
+            o.setUsed(true);
+            ordem.setUsed(true);
+
+            entityManager.getTransaction().begin();
+            entityManager.persist(ordem);
+            entityManager.persist(o);
+            entityManager.getTransaction().commit();
+
+            if(operacao == OrdemType.COMPRA) {
+                new TransacoesController(entityManager).createTransacao(ativo, quantidade, valor, o, ordem);
+            }else{
+                new TransacoesController(entityManager).createTransacao(ativo, quantidade, valor, ordem, o);
+            }
+        }else {
+            entityManager.getTransaction().begin();
+            entityManager.persist(ordem);
+            entityManager.getTransaction().commit();
+        }
 
         return ordem;
     }
-    public Ordem createOrdem(OrdemType operacaoId, int quantidade, double valor, String ativoId, int corretoraId)
-            throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, InvalidOrderTypeValueException, BrokerNotFoundException {
+    public Ordem createOrdem(OrdemType operacaoId, int quantidade, double valor, String ativoId, String corretoraNome)
+            throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, BrokerAlreadyExistsException, BrokerNotFoundException, AssetNotFoundException, OrderNotFoundException, WrongSellOrderTypeException, WrongBuyOrderTypeException {
+        CorretorasController controllerCorretora = new CorretorasController(entityManager);
 
         Ativo ativo = new AtivosController(entityManager).getAtivo(ativoId);
-        Corretora corretora = new CorretorasController(entityManager).getCorretora(corretoraId);
+        if(!existsCorretora(corretoraNome)) controllerCorretora.createCorretora(corretoraNome);
+
+        Corretora corretora = new CorretorasController(entityManager).getCorretora(corretoraNome);
 
         return createOrdem(operacaoId, quantidade, valor, ativo, corretora);
+    }
+
+    private boolean existsCorretora(String nome){
+        try{
+            Corretora corretora = entityManager.createQuery("FROM Corretora c WHERE c.nome = :nome", Corretora.class).setParameter("nome", nome).getSingleResult();
+
+            return corretora != null;
+        }catch (NoResultException e){
+            return false;
+        }
     }
 
     /**
@@ -130,7 +193,7 @@ public class OrdensController {
             }
         }
 
-        entityManager.getTransaction().begin();
+        if(!entityManager.isOpen()) entityManager.getTransaction().begin();
         entityManager.remove(ordem);
         entityManager.getTransaction().commit();
 

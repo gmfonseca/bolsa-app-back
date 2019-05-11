@@ -1,7 +1,9 @@
 package br.com.gmfonseca.bolsaapp.models;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Calendar;
 
 @Entity
 @Table(name = "transacao")
@@ -13,7 +15,7 @@ public class Transacao {
 
     private int quantidade;
     private double valor;
-    private Date data;
+    private String data;
 
     @ManyToOne
     @JoinColumn(name = "ativo_id")
@@ -33,8 +35,10 @@ public class Transacao {
         this.ativo = ativo;
         this.venda = venda;
         this.compra = compra;
-
-        this.data = new Date();
+        NumberFormat nb = new DecimalFormat("00");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR, cal.get(Calendar.HOUR));
+        this.data = nb.format(cal.get(Calendar.DAY_OF_MONTH)) + "/" + nb.format((cal.get(Calendar.MONTH)+1)) + "/" + nb.format(cal.get(Calendar.YEAR)) + " - " + nb.format(cal.get(Calendar.HOUR_OF_DAY)) + ":" + nb.format(cal.get(Calendar.MINUTE));
     }
 
     public Transacao(){}
@@ -59,11 +63,11 @@ public class Transacao {
         this.valor = valor;
     }
 
-    public Date getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(Date data) {
+    public void setData(String data) {
         this.data = data;
     }
 

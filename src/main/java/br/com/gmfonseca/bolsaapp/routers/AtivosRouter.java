@@ -19,35 +19,35 @@ public class AtivosRouter {
     @CrossOrigin
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
-    public List<Ativo> getAtivos() {
+    public synchronized List<Ativo> getAtivos() {
         return ativosController.getAtivos();
     }
 
     @CrossOrigin
     @RequestMapping(value = "/{codigo}", method = RequestMethod.GET)
     @ResponseBody
-    public Ativo getAtivo(@PathVariable("codigo") String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException {
+    public synchronized Ativo getAtivo(@PathVariable("codigo") String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException {
         return ativosController.getAtivo(codigo);
     }
 
     @CrossOrigin
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ResponseBody
-    public Ativo createAtivo(String nome, String codigo, String descricao) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetAlreadyExistsException {
+    public synchronized Ativo createAtivo(String nome, String codigo, String descricao) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetAlreadyExistsException {
         return ativosController.createAtivo(nome, codigo, descricao);
     }
 
     @CrossOrigin
     @RequestMapping(value = "/{codigo}", method = RequestMethod.PUT)
     @ResponseBody
-    public Ativo updateAtivo(@PathVariable("codigo") String codigo, String nome, String descricao) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, AssetNotUpdatedException {
+    public synchronized Ativo updateAtivo(@PathVariable("codigo") String codigo, String nome, String descricao) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, AssetNotUpdatedException {
         return ativosController.updateAtivo(nome, codigo, descricao);
     }
 
     @CrossOrigin
     @RequestMapping(value = "/{codigo}", method = RequestMethod.DELETE)
     @ResponseBody
-    public Ativo deleteAtivo(@PathVariable("codigo") String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, OrderNotFoundException, TransactionNotFoundException {
+    public synchronized Ativo deleteAtivo(@PathVariable("codigo") String codigo) throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, OrderNotFoundException, TransactionNotFoundException {
         return ativosController.deleteAtivo(codigo);
     }
 

@@ -5,6 +5,7 @@ import br.com.gmfonseca.bolsaapp.exceptions.*;
 import br.com.gmfonseca.bolsaapp.models.Ordem;
 import br.com.gmfonseca.bolsaapp.util.OrdemType;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RequestMapping("/ordens")
@@ -23,21 +24,28 @@ public class OrdensRouter {
     @CrossOrigin
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
-    public List<Ordem> getOrdens(){
+    public synchronized List<Ordem> getOrdens(){
         return ordensController.getOrdens();
     }
 
     @CrossOrigin
     @RequestMapping(value = "/compra", method = RequestMethod.GET)
     @ResponseBody
-    public List<Ordem> getOrdensCompra() throws OrderNotFoundException {
+    public synchronized List<Ordem> getOrdensCompra() throws OrderNotFoundException {
         return ordensController.getOrdens(OrdemType.COMPRA);
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/info", method = RequestMethod.GET)
+    @ResponseBody
+    public synchronized List<Ordem> getOrdensCompra(String dateTime) throws OrderNotFoundException {
+        return ordensController.getOrdens(dateTime);
     }
 
     @CrossOrigin
     @RequestMapping(value = "/venda", method = RequestMethod.GET)
     @ResponseBody
-    public List<Ordem> getOrdensVenda() throws OrderNotFoundException {
+    public synchronized List<Ordem> getOrdensVenda() throws OrderNotFoundException {
         return ordensController.getOrdens(OrdemType.VENDA);
     }
 
@@ -48,7 +56,7 @@ public class OrdensRouter {
     @CrossOrigin
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public Ordem getOrdem(@PathVariable("id") int ordemId) throws OrderNotFoundException {
+    public synchronized Ordem getOrdem(@PathVariable("id") int ordemId) throws OrderNotFoundException {
         return ordensController.getOrdem(ordemId);
     }
 
@@ -59,9 +67,9 @@ public class OrdensRouter {
     @CrossOrigin
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ResponseBody
-    public Ordem createOrdem(OrdemType operacao, int quantidade, double valor, String ativoId, int corretoraId)
-            throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, AssetNotFoundException, InvalidOrderTypeValueException, BrokerNotFoundException {
-        return ordensController.createOrdem(operacao, quantidade, valor, ativoId, corretoraId);
+    public synchronized Ordem createOrdem(OrdemType operacao, int quantidade, double valor, String ativoId, String corretoraNome)
+            throws NotFilledRequiredFieldsException, NotCorrectFieldLengthException, BrokerAlreadyExistsException, BrokerNotFoundException, AssetNotFoundException, OrderNotFoundException, WrongSellOrderTypeException, WrongBuyOrderTypeException {
+        return ordensController.createOrdem(operacao, quantidade, valor, ativoId, corretoraNome);
     }
 
     /**
@@ -71,7 +79,7 @@ public class OrdensRouter {
     @CrossOrigin
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
-    public Ordem deleteOrdem(@PathVariable("id") int orderId)
+    public synchronized Ordem deleteOrdem(@PathVariable("id") int orderId)
             throws OrderNotFoundException, TransactionNotFoundException {
         return ordensController.deleteOrdem(orderId);
     }
