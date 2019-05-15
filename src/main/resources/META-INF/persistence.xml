@@ -12,9 +12,18 @@
         <properties>
             <!-- dados da conexao -->
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver" />
+
+            <!-- LOCALHOST MYSQL SERVER
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bolsavalores?useTimezone=true&amp;serverTimezone=UTC" />
+            <property name="javax.persistence.jdbc.user" value="admin" />
+            <property name="javax.persistence.jdbc.password" value="admin" />
+            -->
+
+            <!-- REMOTE MYSQL SERVER -->
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://remotemysql.com:3306/2s9RZZ4Ulm?useTimezone=true&amp;serverTimezone=UTC" />
             <property name="javax.persistence.jdbc.user" value="2s9RZZ4Ulm" />
             <property name="javax.persistence.jdbc.password" value="uuqdebRAGd" />
+
 
             <!--  propriedades do hibernate -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect" />

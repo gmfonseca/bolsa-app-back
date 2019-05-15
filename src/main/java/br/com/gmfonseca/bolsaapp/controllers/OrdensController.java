@@ -69,16 +69,10 @@ public class OrdensController {
         if(date != null) {
             String[] dados = date.split("-");
             String data = dados[0].replaceAll(":", "/") + " - " + dados[1];
-
-            List<Ordem> getted = getOrdens();
-
-            if (getted != null && getted.size()>0)
-                for (Ordem o : getted) {
-                    if (o.getData().equalsIgnoreCase(data)) ordens.add(o);
-                }
-
+            date=data;
         }
-        return ordens;
+
+        return entityManager.createQuery("FROM Ordem o WHERE o.data = :data", Ordem.class).setParameter("data", date).getResultList();
     }
 
     /**
@@ -116,23 +110,19 @@ public class OrdensController {
             throws BrokerNotFoundException, AssetNotFoundException, OrderNotFoundException, WrongSellOrderTypeException, WrongBuyOrderTypeException {
         if (ativo == null) throw new AssetNotFoundException();
         if (corretora == null) throw new BrokerNotFoundException();
+
         Ordem ordem = new Ordem(operacao, quantidade, valor, ativo, corretora);
-        OrdemType op = (operacao == OrdemType.COMPRA ? OrdemType.VENDA : OrdemType.COMPRA);
+        OrdemType inverseType = (operacao == OrdemType.COMPRA ? OrdemType.VENDA : OrdemType.COMPRA);
 
         List<Ordem> ordens = entityManager.createQuery("FROM Ordem o WHERE o.operacao = :operacao AND o.used = false " +
                 "AND o.ativo = :ativo AND o.quantidade = :quantidade AND o.valor = :valor", Ordem.class)
-                .setParameter("operacao", op).setParameter("ativo", ativo).setParameter("quantidade", quantidade).setParameter("valor", valor).getResultList();
+                .setParameter("operacao", inverseType).setParameter("ativo", ativo).setParameter("quantidade", quantidade).setParameter("valor", valor).getResultList();
 
         if(ordens.size()>0){
             ordens.sort(Comparator.comparing(Ordem::getId));
             Ordem o = ordens.get(0);
             o.setUsed(true);
             ordem.setUsed(true);
-
-            entityManager.getTransaction().begin();
-            entityManager.persist(ordem);
-            entityManager.persist(o);
-            entityManager.getTransaction().commit();
 
             Transacao transacao;
             if(operacao == OrdemType.COMPRA) {
@@ -141,9 +131,12 @@ public class OrdensController {
                 transacao = new Transacao(ativo, quantidade, valor, ordem, o);
             }
 
-                entityManager.getTransaction().begin();
-                entityManager.persist(transacao);
-                entityManager.getTransaction().commit();
+            entityManager.getTransaction().begin();
+            entityManager.persist(ordem);
+            entityManager.persist(o);
+            entityManager.persist(transacao);
+            entityManager.getTransaction().commit();
+
         }else {
             entityManager.getTransaction().begin();
             entityManager.persist(ordem);

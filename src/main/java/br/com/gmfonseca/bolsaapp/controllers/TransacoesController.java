@@ -43,16 +43,10 @@ public class TransacoesController {
         if(date != null) {
             String[] dados = date.split("-");
             String data = dados[0].replaceAll(":", "/") + " - " + dados[1];
-
-            List<Transacao> getted = getTransacoes();
-
-            if (getted != null)
-                for (Transacao t : getted) {
-                    if (t.getData().equalsIgnoreCase(data)) transacoes.add(t);
-                }
-
+            date=data;
         }
-        return transacoes;
+
+        return entityManager.createQuery("FROM Transacao t WHERE t.data = :data", Transacao.class).setParameter("data", date).getResultList();
     }
 
     /**

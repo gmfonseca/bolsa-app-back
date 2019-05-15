@@ -1,5 +1,7 @@
 package br.com.gmfonseca.bolsaapp.models;
 
+import br.com.gmfonseca.bolsaapp.util.OrdemType;
+
 import javax.persistence.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -29,15 +31,22 @@ public class Transacao {
     @JoinColumn(name = "compra_id")
     private Ordem compra;
 
-    public Transacao(Ativo ativo, int quantidade, double valor, Ordem venda, Ordem compra) {
+    public Transacao(Ativo ativo, int quantidade, double valor, Ordem ordem1, Ordem ordem2) {
         this.quantidade = quantidade;
         this.valor = valor;
         this.ativo = ativo;
-        this.venda = venda;
-        this.compra = compra;
+
+        if(ordem1.getOperacao() == OrdemType.VENDA) {
+            this.venda = ordem1;
+            this.compra = ordem2;
+        }else{
+            this.compra = ordem1;
+            this.venda = ordem2;
+        }
+
         NumberFormat nb = new DecimalFormat("00");
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR, cal.get(Calendar.HOUR));
+        cal.set(Calendar.HOUR, cal.get(Calendar.HOUR)-3);
         this.data = nb.format(cal.get(Calendar.DAY_OF_MONTH)) + "/" + nb.format((cal.get(Calendar.MONTH)+1)) + "/" + nb.format(cal.get(Calendar.YEAR)) + " - " + nb.format(cal.get(Calendar.HOUR_OF_DAY)) + ":" + nb.format(cal.get(Calendar.MINUTE));
     }
 
